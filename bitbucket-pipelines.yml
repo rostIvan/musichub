@@ -11,8 +11,7 @@ pipelines:
         caches:
           - pip
         script: # Modify the commands below to build your repository.
-          - pip install -r config/requirements/dev.txt
-          - pip install -r config/requirements/build.txt
+          - pip install -r requirements.txt
           - python --version && ./manage.py --version && pip --version
           - ./manage.py test
           - flake8
