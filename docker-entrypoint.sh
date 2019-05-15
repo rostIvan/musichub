@@ -6,7 +6,7 @@ export APP_ENVIRONMENT=DOCKER
 ./manage.py migrate --no-input
 
 mkdir logs
-touch ./logs/gunicorn.log ./logs/gunicorn-access.log
+touch ./logs/gunicorn.log ./logs/gunicorn-access.log ./logs/debug.log
 tail -n 0 -f ./logs/*.log &
 
 RETRIES=5
