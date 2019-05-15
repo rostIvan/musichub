@@ -84,6 +84,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Password hashers
+# https://docs.djangoproject.com/en/2.2/topics/auth/passwords/#using-argon2-with-django
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 LANGUAGE_CODE = 'en-us'
