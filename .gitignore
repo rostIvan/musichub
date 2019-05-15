@@ -92,3 +92,7 @@ venv
 
 # Idea
 .idea/
+
+# Settings
+musichub/settings/local.py
+musichub/settings/production.py
