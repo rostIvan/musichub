@@ -17,6 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+SECRET_KEY = os.getenv('MUSICHUB_APP_SECRET_KEY')
 
 # Application definition
 
@@ -88,3 +89,5 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+STATIC_URL = '/static/'

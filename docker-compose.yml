@@ -1,0 +1,32 @@
+version: '3.6'
+
+services:
+  db:
+    image: postgres
+    container_name: pg
+    restart: always
+    environment:
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - ${PG_PORT_OUT}:${PG_PORT_IN}
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  app:
+    build: .
+    container_name: app
+    restart: always
+    env_file: .env
+    ports:
+    - ${APP_PORT_OUT}:${APP_PORT_IN}
+    volumes:
+      - .:/opt/services/CultureAnalyzer
+      - static:/opt/services/CultureAnalyzer/static
+    depends_on:
+      - db
+
+volumes:
+  pg_data:
+  static:
