@@ -1,6 +1,4 @@
-import os
-
-from musichub.settings import BASE_DIR
+from musichub.settings.default import *
 
 ALLOWED_HOSTS = ['*']
 DEBUG = False

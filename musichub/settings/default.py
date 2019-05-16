@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-SECRET_KEY = os.getenv('MUSICHUB_APP_SECRET_KEY')
+SECRET_KEY = 'lorq$*hfkd4pl(7uig@x7q%_q^8cdd267=yemw5pmqla0*=oy2'
 
 # Application definition
 
