@@ -10,6 +10,7 @@ class Lesson(models.Model):
     user = models.ForeignKey(User, related_name='lessons',
                              on_delete=models.SET_NULL, null=True, blank=False)
     text = models.TextField(blank=False, null=False)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.id} | {self.user.name} | {self.text[:20]}'
