@@ -10,3 +10,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.id}, {self.username}, {self.email}'
+
+    class Meta:
+        db_table = 'users'
