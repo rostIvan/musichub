@@ -10,7 +10,7 @@ def catch_password_errors(password):
     try:
         validate_password(password)
     except exceptions.ValidationError as e:
-        errors = list(e.messages)
+        errors.extend(e.messages)
     return errors
 
 
