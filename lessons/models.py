@@ -3,13 +3,12 @@ from django.db import models
 
 __all__ = ['Lesson']
 
-User = get_user_model()
-
 
 class Lesson(models.Model):
-    user = models.ForeignKey(User, related_name='lessons',
+    title = models.CharField(max_length=155)
+    user = models.ForeignKey(get_user_model(), related_name='lessons',
                              on_delete=models.SET_NULL, null=True, blank=False)
-    text = models.TextField(blank=False, null=False)
+    text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
