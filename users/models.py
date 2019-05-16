@@ -6,10 +6,11 @@ __all__ = ['User']
 
 
 class User(AbstractUser):
-    email = models.EmailField(_('email address'), unique=True, blank=False)
+    email = models.EmailField(_('email address'), unique=True,
+                              blank=False, null=False)
 
     def __str__(self):
-        return f'{self.id}, {self.username}, {self.email}'
+        return f'{self.id} | {self.username} | {self.email}'
 
     class Meta:
         db_table = 'users'

@@ -12,7 +12,7 @@ class Lesson(models.Model):
     text = models.TextField(blank=False, null=False)
 
     def __str__(self):
-        return f'{self.id}, {self.user.name} => {self.text[:20]}'
+        return f'{self.id} | {self.user.name} | {self.text[:20]}'
 
     class Meta:
         db_table = 'lessons'
