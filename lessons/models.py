@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-__all__ = ['Lesson']
+__all__ = ['Lesson', 'Like']
 
 
 class Lesson(models.Model):
@@ -11,8 +11,21 @@ class Lesson(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'lessons'
+
     def __str__(self):
         return f'{self.id} | {self.user.name} | {self.text[:20]}'
 
+
+class Like(models.Model):
+    user = models.ForeignKey(get_user_model(), related_name='likes',
+                             on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, related_name='likes',
+                               on_delete=models.CASCADE)
+
     class Meta:
-        db_table = 'lessons'
+        db_table = 'likes'
+
+    def __str__(self):
+        return f'{self.id} | {self.user.name} | {self.lesson.title}'
