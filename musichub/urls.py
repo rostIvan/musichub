@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('docs/', include_docs_urls(title='musichub docs API')),
     path('swagger/', get_swagger_view(title='musichub swagger API')),
-
+    # ------------------------------------------------------------------------
     path('auth/', include('auth.urls')),
     path('users/', include("users.urls")),
     path('lessons/', include("lessons.urls")),
