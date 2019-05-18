@@ -1,5 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -22,7 +22,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     email = models.EmailField(
@@ -41,8 +41,10 @@ class User(AbstractBaseUser):
     class Meta:
         db_table = 'users'
 
-    def has_perm(self, _perm, _obj=None):
-        return self.is_active
+    def has_perm(self, perm, obj=None):
+        if self.is_active and self.is_staff:
+            return True
+        return super().has_perm(perm, obj)
 
     def has_module_perms(self, _app_label):
         return self.is_staff

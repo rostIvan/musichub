@@ -26,6 +26,7 @@ class Like(models.Model):
 
     class Meta:
         db_table = 'likes'
+        unique_together = ("user", "lesson")
 
     def __str__(self):
-        return f'{self.id} | {self.user.name} | {self.lesson.title}'
+        return f'{self.id} | {self.user.email} | {self.lesson.title}'
