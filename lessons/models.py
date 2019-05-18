@@ -11,11 +11,20 @@ class Lesson(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        db_table = 'lessons'
+    @staticmethod
+    def get_users_who_likes(lesson_id: int) -> list:
+        likes = (Lesson.objects.get(id=lesson_id)
+                 .likes
+                 .select_related('user')
+                 .defer('lesson'))
+        who_likes = [like.user for like in likes]
+        return who_likes
 
     def __str__(self):
         return f'{self.id} | {self.user.name} | {self.text[:20]}'
+
+    class Meta:
+        db_table = 'lessons'
 
 
 class Like(models.Model):
@@ -24,9 +33,9 @@ class Like(models.Model):
     lesson = models.ForeignKey(Lesson, related_name='likes',
                                on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.id} | {self.user.email} | {self.lesson.title}'
+
     class Meta:
         db_table = 'likes'
         unique_together = ("user", "lesson")
-
-    def __str__(self):
-        return f'{self.id} | {self.user.email} | {self.lesson.title}'

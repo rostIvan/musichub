@@ -38,9 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
-    class Meta:
-        db_table = 'users'
-
     def has_perm(self, perm, obj=None):
         if self.is_active and self.is_staff:
             return True
@@ -56,3 +53,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f'{self.id} | {self.email} | ' \
                f'{"admin" if self.is_admin else "user"}'
+
+    class Meta:
+        db_table = 'users'

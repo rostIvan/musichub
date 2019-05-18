@@ -12,14 +12,12 @@ __all__ = ['LessonViewSet']
 
 def lesson_likes_json(lesson_id):
     try:
-        likes = Lesson.objects.get(id=lesson_id).likes.select_related('user')
+        who_likes = Lesson.get_users_who_likes(lesson_id)
     except Lesson.DoesNotExist:
         return Response(
             {'error': f"The lesson with id = {lesson_id} doesn't exist"},
             status.HTTP_404_NOT_FOUND
         )
-
-    who_likes = [like.user for like in likes]
     serializer = UserSerializer(who_likes, many=True)
     return Response({
         'count': len(who_likes),
