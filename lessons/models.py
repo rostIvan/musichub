@@ -21,10 +21,11 @@ class Lesson(models.Model):
         return who_likes
 
     def __str__(self):
-        return f'{self.id} | {self.user.name} | {self.text[:20]}'
+        return f'{self.id} | {self.user.email} | {self.text[:20]}'
 
     class Meta:
         db_table = 'lessons'
+        ordering = ('created',)
 
 
 class Like(models.Model):

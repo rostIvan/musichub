@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from lessons.models import Lesson
 from users.serializers import UserSerializer
@@ -8,10 +9,16 @@ __all__ = ['LessonSerializer', 'LikeSerializer']
 
 class LessonSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    likes_link = serializers.SerializerMethodField()
+
+    def get_likes_link(self, instance):
+        request = self.context['request']
+        sub_link = reverse('lessons-detail', args=(instance.id,)) + 'likes/'
+        return request.build_absolute_uri(sub_link)
 
     class Meta:
         model = Lesson
-        fields = ('id', 'title', 'text', 'created', 'user',)
+        fields = ('id', 'title', 'text', 'created', 'user', 'likes_link')
         read_only_fields = ('id', 'created', 'user')
 
 
