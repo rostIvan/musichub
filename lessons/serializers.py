@@ -7,10 +7,12 @@ __all__ = ['LessonSerializer', 'LikeSerializer']
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = Lesson
-        fields = ('id', 'title', 'text', 'created', 'user')
-        read_only_fields = ('id', 'created')
+        fields = ('id', 'title', 'text', 'created', 'user',)
+        read_only_fields = ('id', 'created', 'user')
 
 
 class LikeSerializer(serializers.Serializer):
