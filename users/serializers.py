@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-__all__ = ['UserSerializer', 'AdminUserSerializer']
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

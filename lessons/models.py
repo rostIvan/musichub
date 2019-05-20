@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-__all__ = ['Lesson', 'Like']
-
 
 class Lesson(models.Model):
     title = models.CharField(max_length=155)
@@ -10,15 +8,6 @@ class Lesson(models.Model):
                              on_delete=models.SET_NULL, null=True, blank=False)
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-
-    @staticmethod
-    def get_users_who_likes(lesson_id: int) -> list:
-        likes = (Lesson.objects.get(id=lesson_id)
-                 .likes
-                 .select_related('user')
-                 .defer('lesson'))
-        who_likes = [like.user for like in likes]
-        return who_likes
 
     def __str__(self):
         return f'{self.id} | {self.user.email} | {self.text[:20]}'

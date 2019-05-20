@@ -2,8 +2,6 @@ from rest_framework import serializers
 
 from auth.validators import password_validator
 
-__all__ = ['PasswordField']
-
 
 class PasswordField(serializers.CharField):
     def __init__(self, **kwargs):

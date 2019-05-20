@@ -4,8 +4,6 @@ from rest_framework.permissions import AllowAny
 
 from auth.serializers import SignUpSerializer
 
-__all__ = ['SignUpView']
-
 
 class SignUpView(generics.CreateAPIView):
     model = get_user_model()

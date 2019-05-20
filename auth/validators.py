@@ -5,7 +5,7 @@ from rest_framework import serializers
 __all__ = ['password_validator']
 
 
-def catch_password_errors(password):
+def _catch_password_errors(password):
     errors = []
     try:
         validate_password(password)
@@ -15,6 +15,6 @@ def catch_password_errors(password):
 
 
 def password_validator(password):
-    errors = catch_password_errors(password)
+    errors = _catch_password_errors(password)
     if errors:
         raise serializers.ValidationError(errors)

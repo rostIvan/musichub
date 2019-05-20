@@ -3,8 +3,6 @@ from rest_framework import serializers
 
 from auth.fields import PasswordField
 
-__all__ = ['SignUpSerializer']
-
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = PasswordField()
