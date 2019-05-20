@@ -9,12 +9,14 @@ from rest_framework.serializers import Serializer
 from lessons.models import Lesson, Like
 from lessons.serializers import LessonSerializer, LikeSerializer
 from musichub.paginators import DefaultSetPagination
+from musichub.permissions import IsOwnerOrReadOnly
 
 
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     pagination_class = DefaultSetPagination
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
 class LikeViewSet(mixins.ListModelMixin,
