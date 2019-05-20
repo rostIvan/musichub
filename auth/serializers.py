@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from auth.fields import PasswordField
+from musichub import fields
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    password = PasswordField()
+    password = fields.PasswordField()
 
     class Meta:
         model = get_user_model()
