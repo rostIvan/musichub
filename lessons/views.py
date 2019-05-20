@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -32,6 +33,15 @@ class LikeViewSet(mixins.ListModelMixin,
             return Serializer
         return super().get_serializer_class()
 
+    @swagger_auto_schema(
+        method='POST',
+        operation_description="Send POST for this route can `toggle` "
+                              "like on lesson with {lesson_id}",
+        responses={
+            201: 'Like created',
+            204: 'Like deleted',
+            404: 'Lesson with {lesson_id} not found',
+        })
     @action(methods=['POST'], detail=False)
     def toggle(self, *_args, **_kwargs):
         lesson = self.get_lesson_or_404()
@@ -40,7 +50,7 @@ class LikeViewSet(mixins.ListModelMixin,
         if not created:
             like.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(LikeSerializer(like).data, status.HTTP_200_OK)
+        return Response(LikeSerializer(like).data, status.HTTP_201_CREATED)
 
     def get_lesson_or_404(self):
         return get_object_or_404(Lesson, id=self.kwargs['lesson_id'])
