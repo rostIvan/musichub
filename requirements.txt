@@ -8,10 +8,12 @@ Django==2.2.1
 django-rest-swagger==2.2.0
 djangorestframework==3.9.4
 djangorestframework-simplejwt==4.3.0
+drf-yasg==1.15.0
 entrypoints==0.3
 flake8==3.7.7
 gunicorn==19.9.0
 idna==2.8
+inflection==0.3.1
 itypes==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
@@ -24,6 +26,7 @@ pyflakes==2.1.1
 PyJWT==1.7.1
 pytz==2019.1
 requests==2.22.0
+ruamel.yaml==0.15.96
 simplejson==3.16.0
 six==1.12.0
 sqlparse==0.3.0

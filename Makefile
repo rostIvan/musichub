@@ -16,7 +16,7 @@ db:			## Open postgres
 dbup:			## Up postgres
 	@docker-compose up -d db
 
-dbstop:			## Up postgres
+dbstop:			## Stop postgres
 	@docker-compose stop db
 
 dbip:			## Show postgres ip address
