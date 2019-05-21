@@ -13,7 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
@@ -35,8 +34,6 @@ urlpatterns = [
     path('docs/', include_docs_urls(title='musichub docs API')),
     path('swagger-drf/', get_swagger_view(title='musichub swagger API')),
     # ------------------------------------------------------------------------
-    url(r'^swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=0)),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0)),
     # ------------------------------------------------------------------------
