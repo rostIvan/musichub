@@ -2,17 +2,20 @@ from mixer.backend.django import mixer
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from lessons.models import Lesson
+from lessons.models import Lesson, Like
 from musichub.tests import APIAuthorizeUserTestCase
+from users.models import User
 
 lesson_json = {
     'title': 'Hello world!!!',
     'text': 'Lorem ipsum...'
 }
 lesson_count = 10
+user_count = 4
+like_count = 11
 
 
-class Test(APIAuthorizeUserTestCase):
+class LessonsTestAPI(APIAuthorizeUserTestCase):
     def setUp(self):
         mixer.cycle(lesson_count).blend(Lesson)
 
@@ -65,3 +68,45 @@ class Test(APIAuthorizeUserTestCase):
 
         patched_lesson = Lesson.objects.get(id=lesson.id)
         self.assertEqual(patched_lesson.title, patch_data['title'])
+
+
+class LikesTestAPI(APIAuthorizeUserTestCase):
+    def setUp(self):
+        mixer.cycle(user_count).blend(User)
+        mixer.cycle(lesson_count).blend(Lesson, user=mixer.SELECT)
+
+    def test_add_like_unauthorized_user(self):
+        response = self.client.post(reverse('lesson_likes', kwargs={
+            'lesson_id': 1
+        }))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_add_like_authorized_user(self):
+        self.create_and_auth(email='user@gmail.com', password='qwerty_1234')
+        response = self.client.post(reverse('lesson_likes', kwargs={
+            'lesson_id': 1
+        }))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_toggle_like_authorized_user(self):
+        def like_exists():
+            return Like.objects.filter(user=user, lesson_id=lesson_id).exists()
+
+        def send_like_toggle():
+            return self.client.post(reverse('lesson_likes', kwargs={
+                'lesson_id': lesson_id
+            }))
+
+        lesson_id = 5
+        user = self.create_and_auth(email='user@gmail.com',
+                                    password='qwerty_1234')
+
+        self.assertFalse(like_exists())
+
+        response = send_like_toggle()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(like_exists())
+
+        response = send_like_toggle()
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(like_exists())
