@@ -75,27 +75,23 @@ class LikesTestAPI(APIAuthorizeUserTestCase):
         mixer.cycle(user_count).blend(User)
         mixer.cycle(lesson_count).blend(Lesson, user=mixer.SELECT)
 
-    def test_add_like_unauthorized_user(self):
-        response = self.client.post(reverse('lesson_likes', kwargs={
-            'lesson_id': 1
+    def send_like_toggle(self, lesson_id):
+        return self.client.post(reverse('lesson_likes', kwargs={
+            'lesson_id': lesson_id
         }))
+
+    def test_add_like_unauthorized_user(self):
+        response = self.send_like_toggle(lesson_id=1)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_add_like_authorized_user(self):
         self.create_and_auth(email='user@gmail.com', password='qwerty_1234')
-        response = self.client.post(reverse('lesson_likes', kwargs={
-            'lesson_id': 1
-        }))
+        response = self.send_like_toggle(lesson_id=1)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_toggle_like_authorized_user(self):
         def like_exists():
             return Like.objects.filter(user=user, lesson_id=lesson_id).exists()
-
-        def send_like_toggle():
-            return self.client.post(reverse('lesson_likes', kwargs={
-                'lesson_id': lesson_id
-            }))
 
         lesson_id = 5
         user = self.create_and_auth(email='user@gmail.com',
@@ -103,10 +99,10 @@ class LikesTestAPI(APIAuthorizeUserTestCase):
 
         self.assertFalse(like_exists())
 
-        response = send_like_toggle()
+        response = self.send_like_toggle(lesson_id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(like_exists())
 
-        response = send_like_toggle()
+        response = self.send_like_toggle(lesson_id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(like_exists())
