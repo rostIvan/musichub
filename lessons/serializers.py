@@ -6,7 +6,7 @@ from users.serializers import UserSerializer
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     likes_link = serializers.SerializerMethodField()
 
     def get_likes_link(self, instance):
@@ -17,7 +17,7 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ('id', 'title', 'text', 'created', 'user', 'likes_link')
-        read_only_fields = ('id', 'created', 'user')
+        read_only_fields = ('id', 'created', 'user', 'likes_link')
 
 
 class LikeSerializer(serializers.ModelSerializer):
