@@ -14,7 +14,7 @@ class Lesson(models.Model):
 
     class Meta:
         db_table = 'lessons'
-        ordering = ('created',)
+        ordering = ('-created',)
 
 
 class Like(models.Model):
@@ -29,3 +29,4 @@ class Like(models.Model):
     class Meta:
         db_table = 'likes'
         unique_together = ("user", "lesson")
+        ordering = ('-id',)
