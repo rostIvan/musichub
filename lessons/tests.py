@@ -106,3 +106,37 @@ class LikesTestAPI(APIAuthorizeUserTestCase):
         response = self.send_like_toggle(lesson_id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(like_exists())
+
+
+class LessonLikesSerializationTestAPI(APIAuthorizeUserTestCase):
+    def setUp(self):
+        mixer.blend(Lesson)
+
+    def test_unauthorized_user(self):
+        """ Unauthorized user shouldn't have `like` bool field in response """
+        response = self.client.get(reverse('lessons-detail', args=(1,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('like', response.data)
+
+    def test_authorized_user(self):
+        """ Authorized user have `like` bool in response.
+        It describes is user already `like` the lesson or not """
+        lesson_id = 1
+        self.create_and_auth(email='user@gmail.com',
+                             password='qwerty_1234')
+
+        response = self.client.get(reverse('lessons-detail',
+                                           args=(lesson_id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('like', response.data)
+        self.assertFalse(response.data['like'])
+
+        self.client.post(reverse('lesson_likes', kwargs={
+            'lesson_id': lesson_id
+        }))
+
+        response = self.client.get(reverse('lessons-detail',
+                                           args=(lesson_id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('like', response.data)
+        self.assertTrue(response.data['like'])
