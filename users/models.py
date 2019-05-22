@@ -15,7 +15,7 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, password):
         user = self.create_user(email, password)
-        user.is_admin = True
+        user.is_superuser = True
         user.save(using=self._db)
         return user
 
@@ -32,12 +32,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
 
     def has_perm(self, perm, obj=None):
-        if self.is_active and self.is_staff:
+        if self.is_staff:
             return True
         return super().has_perm(perm, obj)
 
@@ -46,11 +45,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_staff(self):
-        return self.is_admin
+        return self.is_superuser and self.is_active
 
     def __str__(self):
-        return f'{self.id} | {self.email} | ' \
-               f'{"admin" if self.is_admin else "user"}'
+        return f'{self.id} | {self.email}'
 
     class Meta:
         db_table = 'users'
