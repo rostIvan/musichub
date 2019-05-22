@@ -4,29 +4,33 @@ services:
   db:
     image: postgres
     container_name: pg
+    env_file: .env
     restart: always
     environment:
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
     ports:
-      - ${PG_PORT_OUT}:${PG_PORT_IN}
+      - ${PG_PORT}:5432
     volumes:
       - pg_data:/var/lib/postgresql/data/
 
-  app:
-    build: .
-    container_name: app
-    restart: always
+  redis:
+    image: redis
+    container_name: rd
     env_file: .env
     ports:
-    - ${APP_PORT_OUT}:${APP_PORT_IN}
+      - ${RD_PORT}:6379
+
+  celery:
+    build: .
+    container_name: cw
+    env_file: .env
+    command: celery -A musichub worker -l info
     volumes:
-      - .:/opt/services/CultureAnalyzer
-      - static:/opt/services/CultureAnalyzer/static
+      - .:/opt/services/musichub
     depends_on:
-      - db
+      - redis
 
 volumes:
   pg_data:
-  static:

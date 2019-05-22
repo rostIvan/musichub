@@ -10,17 +10,17 @@ help:
 ps:			## Show container names, status, ports
 	@docker ps --format="table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-db:			## Open postgres
+db:			## Open postgres database
 	@docker exec -it pg psql -U django -d musichub
 
-dbup:			## Up postgres
-	@docker-compose up -d db
-
-dbstop:			## Stop postgres
-	@docker-compose stop db
+rd:			## Open redis-cli
+	@docker exec -it rd redis-cli
 
 dbip:			## Show postgres ip address
 	@docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pg
+
+rdip:			## Show redis ip address
+	@docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' rd
 
 .ONESHELL:
 dockerbash:		## Open bash in container with entered name
