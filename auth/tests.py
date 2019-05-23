@@ -77,8 +77,16 @@ class APIUserSignUpTest(APITestCase):
 
 @skipIf(os.getenv('RUN_REDIS_TESTS') != 'yep', "Redis run only locally")
 class RedisEmailUUIDStorageTest(TestCase):
-    def test_some(self):
-        uuid, email = EmailVerificationUUIDStorage.save('admin123@example.com')
-        print(uuid, email)
+    def test_save_uuid(self):
+        user_email = 'admin123@example.com'
+        uuid, email = EmailVerificationUUIDStorage.save(user_email)
+        self.assertIsNotNone(uuid, email)
+        self.assertEqual(email, user_email)
+
         email = EmailVerificationUUIDStorage.get_email_by_uuid(uuid)
-        print(email)
+        self.assertEqual(email, user_email)
+
+    def test_get_email_with_invalid_uuid(self):
+        invalid_uuid = 'user-uuid-12898333-4968-4196-b823-d488455d8b91'
+        with self.assertRaises(KeyError):
+            EmailVerificationUUIDStorage.get_email_by_uuid(invalid_uuid)
