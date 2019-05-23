@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from unittest import skipIf, TestCase
+from unittest.mock import patch, MagicMock
 
 from auth.verification import EmailVerificationUUIDStorage
 from users.models import User
@@ -90,3 +91,17 @@ class RedisEmailUUIDStorageTest(TestCase):
         invalid_uuid = 'user-uuid-12898333-4968-4196-b823-d488455d8b91'
         with self.assertRaises(KeyError):
             EmailVerificationUUIDStorage.get_email_by_uuid(invalid_uuid)
+
+
+class EmailActivationTest(APITestCase):
+    @patch('auth.tasks.send_email_account_activation_task.delay')
+    def test_send_email_account_activation(self, delay: MagicMock):
+        email = 'example@email.com'
+        response = self.client.post(
+            reverse('sign_up'), {
+                'email': email,
+                'password': 'password_1234567'
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        delay.assert_called_once_with(email)
