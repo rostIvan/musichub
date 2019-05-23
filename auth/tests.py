@@ -1,11 +1,13 @@
 import os
 from ddt import ddt, data, unpack
+from mixer.backend.django import mixer
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from unittest import skipIf, TestCase
 from unittest.mock import patch, MagicMock
 
+from auth.tasks import send_email_account_activation
 from auth.verification import EmailVerificationUUIDStorage
 from users.models import User
 
@@ -44,15 +46,17 @@ invalid_sign_up_data = (
 
 @ddt
 class APIUserSignUpTest(APITestCase):
+    @patch('auth.tasks.send_email_account_activation.delay')
     @data(*valid_sign_up_data)
     @unpack
-    def test_successfully_sign_up(self, email, password):
+    def test_successfully_sign_up(self, email, password, _mock):
         response = self.sign_up(email, password)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {'email': email})
         is_login_successful = self.client.login(username=email,
                                                 password=password)
-        self.assertTrue(is_login_successful)
+        """ Because user is_active should be False """
+        self.assertFalse(is_login_successful)
 
         self.assertIs(User.objects.count(), 1)
         user = User.objects.first()
@@ -94,7 +98,7 @@ class RedisEmailUUIDStorageTest(TestCase):
 
 
 class EmailActivationTest(APITestCase):
-    @patch('auth.tasks.send_email_account_activation_task.delay')
+    @patch('auth.tasks.send_email_account_activation.delay')
     def test_send_email_account_activation(self, delay: MagicMock):
         email = 'example@email.com'
         response = self.client.post(
@@ -104,4 +108,43 @@ class EmailActivationTest(APITestCase):
             }
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        delay.assert_called_once_with(email)
+        delay.assert_called_once()
+
+    @patch('auth.verification.EmailVerificationUUIDStorage.save')
+    @patch('auth.tasks.send_account_activation_message')
+    def test_link_generation(self, send_mail: MagicMock, uuid: MagicMock):
+        email = 'example@email.com'
+        uid = '2d45d5e3-2319-448e-931e-65c48455c8ab'
+        uuid.return_value = (uid, email)
+        send_email_account_activation(email,
+                                      lambda sub: f'http://localhost{sub}')
+        send_mail.assert_called_once()
+
+        args, _ = send_mail.call_args
+        _, link = args
+        self.assertTrue(uid in link)
+        print(link)
+
+    @patch('auth.verification.EmailVerificationUUIDStorage.get_email_by_uuid')
+    def test_activation_user_email_exists(self, get_email):
+        user = mixer.blend(User)
+        self.assertFalse(user.is_active)
+        get_email.return_value = user.email
+        response = self.client.post(
+            reverse('activate_account',
+                    args=('2d45d5e3-2319-448e-931e-65c48455c8ab-',))
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(User.objects.first().is_active)
+
+    @patch('auth.verification.EmailVerificationUUIDStorage.get_email_by_uuid')
+    def test_activation_user_email_not_exists(self, get_email: MagicMock):
+        user = mixer.blend(User)
+        self.assertFalse(user.is_active)
+        get_email.side_effect = KeyError()
+        response = self.client.post(
+            reverse('activate_account',
+                    args=('2d45d5e3-2319-448e-931e-65c48455c8ab-',))
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(User.objects.first().is_active)

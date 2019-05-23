@@ -11,7 +11,7 @@ class EmailVerificationUUIDStorage:
     def save(cls, email: str) -> tuple:
         uuid = uid.uuid4()
         uuid_key = cls.build_key(uuid)
-        expire_time = timedelta(minutes=1).seconds
+        expire_time = timedelta(minutes=10).seconds
         redis.set(uuid_key, email, ex=expire_time)
         return uuid, email
 

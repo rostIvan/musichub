@@ -1,11 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-
-from auth.tasks import send_email_account_activation_task
 
 
 class UserManager(BaseUserManager):
@@ -35,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         },
     )
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
 
@@ -56,9 +52,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = 'users'
-
-
-@receiver(post_save, sender=User)
-def ask_user_to_activate_account(sender, instance, created, **kwargs):
-    if created:
-        send_email_account_activation_task.delay(instance.email)
