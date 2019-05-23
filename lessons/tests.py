@@ -112,13 +112,38 @@ class LessonLikesSerializationTestAPI(APIAuthorizeUserTestCase):
     def setUp(self):
         mixer.blend(Lesson)
 
-    def test_unauthorized_user(self):
+    def test_lesson_likes_count_field(self):
+        """ Lesson json should contains correct likes_count int field """
+
+        def get_lesson_likes_count():
+            r = self.client.get(reverse('lessons-detail', args=(lesson_id,)))
+            return r.data['likes_count']
+
+        def like_lesson():
+            self.client.post(reverse('lesson_likes',
+                                     kwargs={'lesson_id': lesson_id}))
+
+        def auth_someone():
+            self.jwt_auth(mixer.blend(User))
+
+        lesson_id = 1
+        self.assertEqual(get_lesson_likes_count(), 0)
+
+        auth_someone()
+        like_lesson()
+        self.assertEqual(get_lesson_likes_count(), 1)
+
+        auth_someone()
+        like_lesson()
+        self.assertEqual(get_lesson_likes_count(), 2)
+
+    def test_unauthorized_user_like_field(self):
         """ Unauthorized user shouldn't have `like` bool field in response """
         response = self.client.get(reverse('lessons-detail', args=(1,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('like', response.data)
 
-    def test_authorized_user(self):
+    def test_authorized_user_like_field(self):
         """ Authorized user have `like` bool in response.
         It describes is user already `like` the lesson or not """
         lesson_id = 1

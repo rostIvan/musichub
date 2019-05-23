@@ -7,7 +7,11 @@ from users.serializers import UserSerializer
 
 class LessonSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    likes_count = serializers.SerializerMethodField()
     likes_link = serializers.SerializerMethodField()
+
+    def get_likes_count(self, instance):
+        return Like.objects.filter(lesson_id=instance.id).count()
 
     def get_likes_link(self, instance):
         request = self.context['request']
@@ -16,8 +20,10 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ('id', 'title', 'text', 'created', 'user', 'likes_link')
-        read_only_fields = ('id', 'created', 'user', 'likes_link')
+        fields = ('id', 'title', 'text', 'created', 'user',
+                  'likes_count', 'likes_link')
+        read_only_fields = ('id', 'created', 'user',
+                            'likes_count', 'likes_link')
 
 
 class AuthLessonSerializer(LessonSerializer):
@@ -30,8 +36,9 @@ class AuthLessonSerializer(LessonSerializer):
     class Meta:
         model = Lesson
         fields = ('id', 'title', 'text', 'created', 'user',
-                  'like', 'likes_link')
-        read_only_fields = ('id', 'created', 'user', 'like', 'likes_link')
+                  'like', 'likes_count', 'likes_link')
+        read_only_fields = ('id', 'created', 'user', 'like',
+                            'likes_count', 'likes_link')
 
 
 class LikeSerializer(serializers.ModelSerializer):
