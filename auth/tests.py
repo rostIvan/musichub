@@ -7,8 +7,8 @@ from rest_framework.test import APITestCase
 from unittest import skipIf, TestCase
 from unittest.mock import patch, MagicMock
 
-from auth.tasks import send_email_account_activation
 from auth.verification import EmailVerificationUUIDStorage
+from musichub.tests import APIAuthorizeUserTestCase
 from users.models import User
 
 valid_sign_up_data = (
@@ -110,31 +110,17 @@ class EmailActivationTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         delay.assert_called_once()
 
-    @patch('auth.verification.EmailVerificationUUIDStorage.save')
-    @patch('auth.tasks.send_account_activation_message')
-    def test_link_generation(self, send_mail: MagicMock, uuid: MagicMock):
-        email = 'example@email.com'
-        uid = '2d45d5e3-2319-448e-931e-65c48455c8ab'
-        uuid.return_value = (uid, email)
-        send_email_account_activation(email,
-                                      lambda sub: f'http://localhost{sub}')
-        send_mail.assert_called_once()
-
-        args, _ = send_mail.call_args
-        _, link = args
-        self.assertTrue(uid in link)
-        print(link)
-
     @patch('auth.verification.EmailVerificationUUIDStorage.get_email_by_uuid')
     def test_activation_user_email_exists(self, get_email):
         user = mixer.blend(User)
         self.assertFalse(user.is_active)
         get_email.return_value = user.email
-        response = self.client.post(
+        response = self.client.get(
             reverse('activate_account',
                     args=('2d45d5e3-2319-448e-931e-65c48455c8ab-',))
         )
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'account': 'activated'})
         self.assertTrue(User.objects.first().is_active)
 
     @patch('auth.verification.EmailVerificationUUIDStorage.get_email_by_uuid')
@@ -142,9 +128,44 @@ class EmailActivationTest(APITestCase):
         user = mixer.blend(User)
         self.assertFalse(user.is_active)
         get_email.side_effect = KeyError()
-        response = self.client.post(
+        response = self.client.get(
             reverse('activate_account',
-                    args=('2d45d5e3-2319-448e-931e-65c48455c8ab-',))
+                    args=('2d45d5e3-2319-448e-931e-65c48455c8ab',))
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(User.objects.first().is_active)
+
+
+class ObtainTokenTest(APIAuthorizeUserTestCase):
+    def test_not_active_user(self):
+        email = 'user@gmail.com'
+        password = 'hello_qwerty'
+        user = User.objects.create(email=email,
+                                   password=password)
+        self.assertFalse(user.is_active)
+        response = self.client.post(reverse('token_obtain'), {
+            'email': email,
+            'password': password
+        })
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    @patch("auth.verification.EmailVerificationUUIDStorage.get_email_by_uuid")
+    def test_active_user(self, get_mail: MagicMock):
+        uuid = '2d45d5e3-2319-448e-931e-65c48455c8ab'
+        email = 'user@example.com'
+        password = 'some_password123'
+        get_mail.return_value = email
+
+        user = self.create_user(email, password)
+        self.assertFalse(user.is_active)
+
+        response = self.client.get(reverse('activate_account', args=(uuid,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'account': 'activated'})
+
+        response = self.client.post(reverse('token_obtain'), {
+            'email': user.email,
+            'password': password
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(User.objects.get(email=email).is_active)

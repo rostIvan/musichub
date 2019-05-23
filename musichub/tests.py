@@ -11,8 +11,11 @@ class APIAuthorizeUserTestCase(APITestCase):
         user.save()
         return user
 
-    def auth(self, user, token_type, **additional_headers):
+    def activate(self, user):
         user.is_active = True
+        user.save()
+
+    def auth(self, user, token_type, **additional_headers):
         user.save()
         token = AccessToken.for_user(user)
         self.client.credentials(HTTP_AUTHORIZATION=f'{token_type} {token}',

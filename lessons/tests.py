@@ -21,6 +21,7 @@ class LessonsTestAPI(APIAuthorizeUserTestCase):
 
     def test_get_lessons(self):
         response = self.client.get(reverse('lessons-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], lesson_count)
 
     def test_get_lesson_by_id(self):
@@ -124,7 +125,9 @@ class LessonLikesSerializationTestAPI(APIAuthorizeUserTestCase):
                                      kwargs={'lesson_id': lesson_id}))
 
         def auth_someone():
-            self.jwt_auth(mixer.blend(User))
+            user = mixer.blend(User)
+            self.jwt_auth(user)
+            self.activate(user)
 
         lesson_id = 1
         self.assertEqual(get_lesson_likes_count(), 0)

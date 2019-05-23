@@ -18,7 +18,16 @@ class AccountActivationView(views.APIView):
     def get(self, request, uuid):
         try:
             email = EmailVerificationUUIDStorage.get_email_by_uuid(uuid)
-            User.objects.filter(email=email).update(is_active=True)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            try:
+                self.activate_user(email)
+                return Response({'account': 'activated'},
+                                status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def activate_user(self, email):
+        user = User.objects.get(email=email)
+        user.is_active = True
+        user.save(update_fields=['is_active'])
