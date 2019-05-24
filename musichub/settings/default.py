@@ -31,12 +31,17 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_swagger',
     'drf_yasg',
+    'corsheaders',
+
     # ------------------------------------------------------------------------
     'users',
     'lessons',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -121,7 +126,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=10),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=22),
-    'AUTH_HEADER_TYPES': ('JWT', 'Bearer'),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=20),
+    'AUTH_HEADER_TYPES': ('JWT',),
 }
+
+CORS_ORIGIN_ALLOW_ALL = True

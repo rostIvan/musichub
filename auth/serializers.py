@@ -16,11 +16,13 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = get_user_model().objects.create_user(**validated_data)
+        self.activation_request(user)
+        return user
 
+    def activation_request(self, user):
         uuid, email = EmailVerificationUUIDStorage.save(user.email)
         activation_link = self.get_full_activation_link(uuid)
         send_email_account_activation.delay(email, activation_link)
-        return user
 
     def get_full_activation_link(self, uuid):
         request = self.context['request']

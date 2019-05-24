@@ -6,7 +6,7 @@ from auth.views import SignUpView, AccountActivationView
 
 urlpatterns = [
     path('sign-up/', SignUpView.as_view(), name='sign_up'),
-    path('activate-account/<uuid>',
+    path('activate-account/<uuid>/',
          AccountActivationView.as_view(), name='activate_account'),
 
     path('token/', include([

@@ -162,9 +162,10 @@ class ObtainTokenTest(APIAuthorizeUserTestCase):
         response = self.client.get(reverse('activate_account', args=(uuid,)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'account': 'activated'})
+        self.assertTrue(User.objects.get(email=email).is_active)
 
         response = self.client.post(reverse('token_obtain'), {
-            'email': user.email,
+            'email': email,
             'password': password
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)

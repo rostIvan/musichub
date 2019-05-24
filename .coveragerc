@@ -1,0 +1,13 @@
+[run]
+source=
+    .
+omit=
+    ./venv/*
+    ./**/tests.py
+    ./*/migrations/*.py
+    ./*/settings/*.py
+    wsgi.py
+    ./manage.py
+    ./*/apps.py
+    ./*/admin.py
+    ./*/wsgi.py
