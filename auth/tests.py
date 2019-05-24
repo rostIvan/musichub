@@ -49,8 +49,11 @@ class APIUserSignUpTest(APITestCase):
     @patch('auth.tasks.send_email_account_activation.delay')
     @data(*valid_sign_up_data)
     @unpack
-    def test_successfully_sign_up(self, email, password, _mock):
-        response = self.sign_up(email, password)
+    def test_successfully_sign_up(self, email, password, mock):
+        response = self.client.post(reverse('sign_up'), {
+            'email': email,
+            'password': password
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {'email': email})
         is_login_successful = self.client.login(username=email,
@@ -65,19 +68,18 @@ class APIUserSignUpTest(APITestCase):
         self.assertIsNotNone(user.password)
         self.assertTrue(user.password.startswith('argon2'))
 
+    @patch('auth.tasks.send_email_account_activation.delay')
     @data(*invalid_sign_up_data)
     @unpack
-    def test_unsuccessfully_sign_up(self, email, password, expected_response):
-        response = self.sign_up(email, password)
+    def test_unsuccessfully_sign_up(self, email, password, expected_response,
+                                    mock):
+        response = self.client.post(reverse('sign_up'), {
+            'email': email,
+            'password': password
+        })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_response)
         self.assertFalse(User.objects.exists())
-
-    def sign_up(self, email, password):
-        return self.client.post(
-            reverse('sign_up'),
-            {'email': email, 'password': password}
-        )
 
 
 @skipIf(os.getenv('RUN_REDIS_TESTS') != 'yep', "Redis run only locally")
