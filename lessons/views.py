@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins, status
@@ -58,4 +59,8 @@ class LikeViewSet(mixins.ListModelMixin,
         return Response(LikeSerializer(like).data, status.HTTP_201_CREATED)
 
     def get_lesson_or_404(self):
-        return get_object_or_404(Lesson, id=self.kwargs['lesson_id'])
+        try:
+            lesson_id = int(self.kwargs['lesson_id'])
+        except ValueError:
+            raise Http404()
+        return get_object_or_404(Lesson, id=lesson_id)

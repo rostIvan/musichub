@@ -27,17 +27,22 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class AuthLessonSerializer(LessonSerializer):
+    mine = serializers.SerializerMethodField('is_lesson_mine')
     like = serializers.SerializerMethodField('is_already_like')
 
     def is_already_like(self, instance):
         user = self.context['request'].user
         return Like.objects.filter(lesson=instance, user=user).exists()
 
+    def is_lesson_mine(self, instance):
+        user = self.context['request'].user
+        return user == instance.user
+
     class Meta:
         model = Lesson
         fields = ('id', 'title', 'text', 'created', 'user',
-                  'like', 'likes_count', 'likes_link')
-        read_only_fields = ('id', 'created', 'user', 'like',
+                  'mine', 'like', 'likes_count', 'likes_link')
+        read_only_fields = ('id', 'created', 'user', 'mine', 'like',
                             'likes_count', 'likes_link')
 
 
