@@ -11,13 +11,13 @@ from lessons.models import Lesson, Like
 from lessons.serializers import (LikeSerializer, AuthLessonSerializer,
                                  LessonSerializer)
 from musichub.paginators import DefaultSetPagination
-from musichub.permissions import IsOwnerOrReadOnly, IsAuthForCreation
+from musichub.permissions import IsOwnerOrReadOnly, IsAuthForPostMethod
 
 
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     pagination_class = DefaultSetPagination
-    permission_classes = (IsOwnerOrReadOnly, IsAuthForCreation)
+    permission_classes = (IsOwnerOrReadOnly, IsAuthForPostMethod)
 
     def get_serializer_class(self):
         if self.request.user.is_authenticated:

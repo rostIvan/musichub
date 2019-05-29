@@ -8,7 +8,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.user == request.user
 
 
-class IsAuthForCreation(permissions.BasePermission):
+class IsAuthForPostMethod(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == 'POST':
             return request.user.is_authenticated
